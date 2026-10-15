@@ -1,0 +1,232 @@
+# ==========================================================================
+#  arXiv digest settings
+#  Edit this file any time (on GitHub: open it and click the pencil icon).
+#  Changes take effect on the next run.
+#
+#  The settings most people change are in the first three sections:
+#    [feed]       how often, how many papers, how long each write-up is
+#    [arxiv]      which arXiv categories to watch
+#    [interests]  what your research is about  <- replace the example
+#  Everything under "ADVANCED" can usually be left alone.
+# ==========================================================================
+
+
+[feed]
+
+# --- Name ------------------------------------------------------------------
+# Shown as the sender name, the email subject and the heading of each digest.
+# Pick something you'll spot in your inbox.
+name = "Qubit Courier"
+icon = "⚛️"                  # put "" here for no icon
+
+# --- How often -------------------------------------------------------------
+# A digest every N days: 7 = weekly, 3 = every three days, 1 = daily, ...
+every_days = 7
+
+# A date to send a digest on (YYYY-MM-DD, no quotes). Digests go out on this
+# date and every `every_days` days after it, so for weekly digests this also
+# sets the weekday. Any date works, past or future: 2026-10-19 is a Monday,
+# so this example sends every Monday. Each digest has everything arXiv
+# announced since the last one.
+first_date = 2026-10-19
+
+# --- How many papers -------------------------------------------------------
+# Papers in the main list, per day of arXiv submissions the digest covers. A
+# digest covering one day gets this many, a weekly one seven times as many,
+# and a catch-up after a missed digest proportionally more. Decimals are
+# fine: 3 gives about 20 a week, 5 about 15 per 3 days. You may get fewer if
+# fewer papers clear `min_score` (under ADVANCED below).
+articles_per_day = 3
+# Never more than this in a single digest.
+max_articles = 100
+
+# --- How long each write-up is ---------------------------------------------
+# Approximate word limits for the short summary of each paper and for the
+# "Why it matters" line under it. 40 and 20 fit one paper per phone screen.
+summary_words = 40
+why_words = 20
+
+
+[arxiv]
+
+# arXiv categories to watch. Cross-listed papers are included.
+# Codes: https://arxiv.org/category_taxonomy
+categories = [
+  "quant-ph",           # quantum physics
+  "cond-mat.supr-con",  # superconductivity
+  "cond-mat.mes-hall",  # mesoscopic physics: circuit QED, mechanics, hybrid devices
+  "physics.app-ph",     # applied physics: devices, fabrication, phononics
+  "physics.optics",     # optics and photonics
+]
+
+
+[interests]
+
+# What you care about, in plain English. Claude scores every paper against
+# this text, so it's the main thing to tune.
+#
+# THIS IS AN EXAMPLE for an experimental quantum-hardware researcher.
+# Replace it with your own. Tips:
+#   - Group topics into tiers with score ranges, like below; that makes the
+#     scores much more predictable.
+#   - Be specific: name techniques, materials, devices, methods.
+#   - End with a "Score low" list of nearby topics you don't want.
+#   - Short on time? Paste a few of your own abstracts into Claude and ask for
+#     a research-interest paragraph in this format.
+# After a couple of digests, add topics that were missed and push down ones
+# that showed up too often.
+description = '''
+I'm an experimentalist working mostly on superconducting devices and qubits,
+but I'm also looking for good general theory and experiment papers in quantum
+science and engineering. Quantum technology in general is welcome, especially
+with a hardware focus, and so is industry-focused work.
+
+Score each paper by the tier its topic falls in (scores in brackets). Within
+a tier, score significant results and major demonstrations higher and
+incremental work lower.
+
+Core interests (8-10):
+- Superconducting qubits and devices: transmons, fluxonium, bosonic/cat
+  qubits, couplers, resonators, Josephson junctions, parametric amplifiers
+  (JPAs, TWPAs) and other circuit QED hardware.
+- Materials and loss: two-level systems (TLS), quasiparticles, dielectric
+  and interface loss, coherence studies, fabrication.
+- Quantum error correction on hardware: logical qubit and QEC experiments,
+  surface codes, qLDPC codes, decoders, and magic state preparation.
+- Readout, control, calibration and packaging: drift, crosstalk, leakage,
+  noise spectroscopy, benchmarking, package and enclosure modes, flip-chip
+  and 3D integration, wiring, cryogenic electronics.
+
+Strong interests (6-8):
+- Phononic and photonic quantum devices: mechanical and acoustic resonators
+  (SAW, BAW/HBAR, phononic crystals, optomechanics), circuit quantum
+  acoustodynamics, integrated and electro-optic photonics, single-photon
+  sources and detectors.
+- Quantum transduction and interconnects: microwave-to-optical conversion
+  (electro-optic, piezo-optomechanical and other schemes), microwave links,
+  quantum state transfer and remote entanglement between chips or fridges.
+- Quantum sensing and metrology with quantum devices: qubit-based and
+  mechanical sensors, single microwave photon or phonon detection,
+  quantum-limited measurement, dark-matter and fundamental-physics searches.
+- Quantum computer architecture and systems engineering: modular and
+  distributed architectures, scaling roadmaps, resource estimates, control
+  stacks, orchestration and scheduling, integration with classical and HPC
+  systems.
+- Tools, software and automation: software frameworks and toolchains for
+  real hardware, compilers that target real devices, simulation and design
+  tools (EM simulation, circuit quantization, layout), AI and machine
+  learning for calibration, control, decoding or device design, and
+  autonomous labs.
+- Useful demonstrations and applications: quantum algorithms run on real
+  hardware, quantum advantage and utility experiments, application studies
+  (chemistry, materials, simulation, optimization) with realistic resource
+  counts, and benchmarking across platforms and companies.
+
+Also of interest (4-6):
+- Notable theory and experiments elsewhere in quantum science and
+  engineering: other qubit platforms (trapped ions, neutral atoms, spins,
+  photonic qubits), analog quantum simulation, quantum networking and
+  communication, and many-body or open-system physics with a technology angle.
+
+Score low (0-3):
+- Abstract quantum information theory or foundations of quantum mechanics
+  with no link to technology.
+- Speculative application papers, e.g. quantum machine learning or
+  optimization proposals tested only on toy simulations, with no hardware
+  demonstration and no credible path to one.
+- Optics, applied physics or mesoscopic physics papers with no quantum
+  angle: classical photonics, lasers, metamaterials, classical acoustics,
+  electronic transport, materials growth.
+'''
+
+# Short labels shown next to each paper. Claude picks the best fit for each
+# paper (or "Other"). Change these to match your own topics.
+topics = [
+  "Qubits & devices",
+  "Materials & loss",
+  "Error correction",
+  "Readout, control & packaging",
+  "Phononics & photonics",
+  "Transduction & interconnects",
+  "Quantum sensing",
+  "Architecture & tools",
+  "Algorithms & applications",
+  "Quantum science",
+]
+
+# Papers matching any of these always make the list (marked ★), whatever
+# their score. Good for collaborators, your group, or your own methods.
+# Authors: whole-name match, case-insensitive, e.g. ["Jane Q. Doe", "Smith"].
+# A last name alone also works but may catch other people with that name.
+always_include_authors = []
+# Keywords: case-insensitive match in the title or abstract,
+# e.g. ["bivariate bicycle", "fluxonium"].
+always_include_keywords = []
+
+# Papers with any of these in the title or abstract are dropped before
+# scoring (unless they also match an always-include rule above).
+exclude_keywords = []
+
+
+# ==========================================================================
+#  ADVANCED
+# ==========================================================================
+
+[selection]
+# Papers scoring at least this (0-10) can make the main list.
+min_score = 6
+# Titles-only "Also worth a glance" list at the end, on top of the main list.
+# Set to 0 to turn it off.
+also_notable = 10
+also_notable_min_score = 4
+
+
+[timing]
+# Each digest contains everything arXiv has announced since the previous one,
+# up to its newest announcement (arXiv announces Sunday-Thursday at 20:00 US
+# Eastern). Days with no new announcement, e.g. weekends for a daily digest,
+# send nothing.
+# Papers whose announcement is delayed, by an arXiv holiday or a moderator
+# hold, can fall between two digests. Setting this to 1 or 2 shifts every
+# window back that many days, which catches most of them but makes papers
+# that much older when they arrive. (Each digest starts where the last one
+# that went out stopped, so changing this never repeats or skips papers.)
+extra_delay_days = 0
+
+# arXiv sometimes rate-limits GitHub's shared servers for 20-45 minutes. The
+# regular daily run keeps retrying arXiv for this many minutes before giving
+# up; if it still can't get everything, it sends what it has and the rest
+# follows.
+arxiv_max_wait_minutes = 40
+# If a digest didn't go out, the workflow tries again every 4 hours, each
+# time retrying arXiv for this many minutes. Short, frequent tries work
+# better than long ones here: each run usually gets a fresh GitHub server
+# with a new IP address. Papers aren't dropped: anything not yet delivered
+# rolls into the next digest that gets through (up to 14 days back).
+retry_max_wait_minutes = 10
+
+
+[claude]
+# Haiku is the cheapest model and is good at this kind of sorting. For richer
+# summaries, set summary_model to a larger model. It only sees the picks.
+scoring_model = "claude-haiku-5-5"
+summary_model = "claude-haiku-5-5"
+# Papers per scoring request. 40 papers come to about 15K tokens, well under
+# Haiku 5.5's 100K-token pricing threshold, and larger batches mean fewer
+# requests, so a week of five categories (~2,000 papers) scores in minutes.
+batch_size = 40
+summary_batch_size = 5
+
+
+[email]
+# Email subject. Placeholders: {icon} {name} {papers} ("15 papers")
+# {count} ("15") {dates}
+subject = "{icon} {name} · {papers} · {dates}"
+smtp_host = "smtp.gmail.com"
+smtp_port = 465
+# Also attach the digest as an .html file (it's always in the email body).
+attach_html_copy = false
+# Keep a copy of each digest on its run page on GitHub (under Artifacts, for
+# 30 days). Anyone who can see the repository can download these, so set
+# this to false if your repository is public.
+save_digest_copy = true

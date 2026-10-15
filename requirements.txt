@@ -1,0 +1,2 @@
+anthropic>=0.40
+tzdata  # time-zone data for US Eastern; already built into Linux, needed on Windows

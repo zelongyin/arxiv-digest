@@ -1,0 +1,142 @@
+name: arXiv digest
+
+on:
+  schedule:
+    # The regular daily check, 14:17 UTC (about 7:15 am Pacific in summer,
+    # 6:15 am in winter). Whether a digest goes out is set by every_days and
+    # first_date in config.toml. If you move this, also change SEND_HOUR_UTC in
+    # digest.py and the "17 14 * * *" in the "Is a digest due?" step below,
+    # and keep it between 02:00 and 23:59 UTC (arXiv announces new papers at
+    # 00:00-01:00 UTC).
+    - cron: "17 14 * * *"
+    # Retries, every 4 hours after that. If the latest digest hasn't gone out
+    # (e.g. arXiv was blocking requests), these try again, each with a short
+    # wait (retry_max_wait_minutes); otherwise they stop after a few seconds.
+    # Each run usually gets a fresh GitHub server with a different IP address,
+    # which is the best chance of getting past an arXiv block.
+    - cron: "17 18 * * *"
+    - cron: "17 22 * * *"
+    - cron: "17 2 * * *"
+    - cron: "17 6 * * *"
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+    # Adds a "Run workflow" button on the Actions tab. Manual runs always send.
+    inputs:
+      dry_run:
+        description: "Dry run: build the digest but don't email it"
+        type: boolean
+        default: false
+      limit:
+        description: "Only score this many papers (leave blank for all). Try 40 for a cheap first test."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  actions: read  # to look up the receipts of earlier digests
+
+# Never run two digests at once (e.g. a retry overlapping a slow run).
+concurrency:
+  group: arxiv-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    # Room for 40 minutes of waiting out arXiv rate limits, plus scoring a big
+    # catch-up digest (~20 min).
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # Each sent digest leaves a receipt: an artifact named
+      # sent-YYYYMMDDTHHMMZ, the submission time up to which papers have been
+      # delivered. Find the newest one, then decide whether a digest is due.
+      - name: Is a digest due?
+        id: when
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HAS_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          # A new copy has no secrets yet: skip quietly instead of failing
+          # every few hours until setup is finished.
+          if [ "$HAS_API_KEY" != "true" ]; then
+            echo "::notice::No ANTHROPIC_API_KEY secret yet, so there's nothing to do. See the README to finish setup."
+            echo "send=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if names=$(gh api --paginate "repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+                        --jq '.artifacts[] | select(.expired | not) | .name'); then
+            last=$(printf '%s\n' "$names" | grep -E '^sent-[0-9]{8}T[0-9]{4}Z$' | sort | tail -n 1 || true)
+            echo "receipts_ok=true" >> "$GITHUB_OUTPUT"
+            echo "last_sent=$last" >> "$GITHUB_OUTPUT"
+            check_args=(--last-sent "$last")
+            echo "Latest receipt: ${last:-none}"
+          else
+            echo "::warning::Couldn't look up earlier digests; only the regular daily run will send."
+            echo "receipts_ok=false" >> "$GITHUB_OUTPUT"
+            check_args=(--receipts-unknown)
+          fi
+          # The first cron line is the regular run; the others are retries.
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" != "17 14 * * *" ]; then
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            check_args+=(--retry)
+          fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            python digest.py --check "${check_args[@]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "send=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        if: steps.when.outputs.send == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Build and send the digest
+        id: build
+        if: steps.when.outputs.send == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          DIGEST_TO: ${{ secrets.DIGEST_TO }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          LIMIT: ${{ inputs.limit }}
+          LAST_SENT: ${{ steps.when.outputs.last_sent }}
+        run: |
+          args=()
+          if [ "${{ github.event_name }}" = "schedule" ]; then args+=(--scheduled); fi
+          if [ "${{ steps.when.outputs.retry }}" = "true" ]; then args+=(--retry); fi
+          if [ "${{ steps.when.outputs.receipts_ok }}" = "true" ]; then
+            args+=(--last-sent "$LAST_SENT")
+          else
+            args+=(--receipts-unknown)
+          fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          if [ -n "$LIMIT" ]; then args+=(--limit "$LIMIT"); fi
+          python digest.py "${args[@]}"
+
+      # always(): if the email went out but something failed afterwards, still
+      # record it, so the digest isn't sent twice.
+      - name: Save the receipt
+        if: always() && steps.build.outputs.receipt != ''
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.build.outputs.receipt }}
+          path: receipt.txt
+          retention-days: 90
+          overwrite: true
+
+      - name: Save a copy of the digest
+        if: always() && steps.when.outputs.send == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: digest-${{ github.run_number }}
+          path: digest.html
+          if-no-files-found: ignore
+          retention-days: 30
+          overwrite: true
