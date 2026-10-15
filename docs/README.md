@@ -1,6 +1,5 @@
 Screenshots shown at the top of the main README:
 
-- `IMG_0005.jpg`: the digest in an inbox (sender name and subject line)
 - `IMG_0006.jpg`: the top of an opened digest ("In this issue" list and the first write-up)
 - `IMG_0007.png`: more write-ups, "Also worth a glance" and the footer
 

@@ -1,14 +1,13 @@
-# arXiv Digest
+# arXiv-digest
 
-**Your own arXiv feed, delivered to your inbox.** Describe your research in plain English. Every day, every few days or every week, you get an email with the new papers that matter to *you*, each with a short summary and a line on why it's relevant. It runs on GitHub for free, and Claude does the reading for well under a dollar a week.
+**Your own arXiv feed, delivered to your inbox.**
+
+Describe your research in plain English. Every day, every few days or every week, you get an email with the new papers that matter to *you*, each with a short summary and a line on why it's relevant. It runs on GitHub for free, and Claude does the reading for well under a dollar a week.
 
 <p align="center">
-  <img src="docs/IMG_0005.jpg" width="520" alt="The digest arriving in an inbox, with its own sender name and subject line">
-</p>
-<p align="center">
-  <img src="docs/IMG_0006.jpg" width="300" alt="The top of a digest: every title at a glance, then short write-ups">
+  <img src="docs/IMG_0006.jpg" width="250" alt="The top of a digest: every title at a glance, then short write-ups">
   &nbsp;&nbsp;
-  <img src="docs/IMG_0007.png" width="300" alt="More write-ups, the 'Also worth a glance' list and the footer">
+  <img src="docs/IMG_0007.png" width="250" alt="More write-ups, the 'Also worth a glance' list and the footer">
 </p>
 
 ## Features
@@ -225,6 +224,11 @@ To send it, also set `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD` and optionally `DIGES
 | `digest.py` | The script |
 | `.github/workflows/digest.yml` | When and how GitHub runs it |
 | `requirements.txt` | Python packages it needs |
+
+## Feedback
+
+Questions, ideas or bugs? [Open an issue](https://github.com/zelongyin/arxiv-digest/issues). Pull requests are welcome too.
+If you set this up for your own field, I'd love to hear how it works for you.
 
 ## License and thanks
 
